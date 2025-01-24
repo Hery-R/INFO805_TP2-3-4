@@ -1,0 +1,103 @@
+/* package et imports */
+package fr.usmb.m1isc.compilation.tp1;
+import java_cup.runtime.Symbol;
+import java_cup.runtime.ComplexSymbolFactory;
+import java.util.*;
+
+/* inclusion du code */
+action code {: 
+    // pour utilisation dans les actions (classe action)
+    private Map<String, Integer> variables = new HashMap<>();
+    
+    // Méthode pour afficher une liste d'expressions
+    private void printExprList(List<Object> list) {
+        if (list.size() == 1) {
+            System.out.println(list.get(0));
+        } else {
+            for (int i = 0; i < list.size() - 1; i++) {
+                System.out.print("(; " + list.get(i) + " ");
+            }
+            System.out.print(list.get(list.size() - 1));
+            for (int i = 0; i < list.size() - 1; i++) {
+                System.out.print(")");
+            }
+            System.out.println();
+        }
+    }
+:};
+
+parser code {:
+    public void report_error(String message, Object info) {
+        StringBuilder m = new StringBuilder("Error");
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            if (s.left >= 0) {
+                m.append(" in line "+(s.left+1));
+                if (s.right >= 0)
+                    m.append(", column "+(s.right+1));
+            }
+        }
+        m.append(" : "+message);
+        System.err.println(m.toString());
+    }
+:};
+
+/* symboles terminaux */
+terminal PLUS, MINUS, TIMES, DIV, MOD;
+terminal LPAREN, RPAREN, SEMI, LET, ASSIGN, DOT;
+terminal IF, THEN, ELSE, WHILE, DO;
+terminal INPUT, OUTPUT, NIL;
+terminal AND, OR, NOT;
+terminal LT, LE, EQ;
+terminal UMINUS;
+terminal String ID;
+terminal Integer NUMBER;
+
+/* non terminaux */
+non terminal Object expr, simple_expr;
+non terminal List<Object> program;
+
+/* Précédences */
+precedence left SEMI;
+precedence left OR;
+precedence left AND;
+precedence left EQ;
+precedence left LT, LE;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIV, MOD;
+precedence right NOT;
+precedence right UMINUS;
+precedence left DOT;
+
+/* grammaire */
+
+program     ::= expr:e                        {: List<Object> l = new ArrayList<>(); l.add(e); printExprList(l); RESULT = l; :}
+            ;
+
+expr        ::= simple_expr:e1 SEMI expr:e2   {: RESULT = "(; " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e                 {: RESULT = e; :}
+            ;
+
+simple_expr ::= LET ID:id ASSIGN simple_expr:e {: RESULT = "(LET " + id + " " + e + ")"; :}
+            |   IF simple_expr:c THEN simple_expr:t ELSE simple_expr:e  {: RESULT = "(IF " + c + " " + t + " " + e + ")"; :}
+            |   WHILE simple_expr:c DO simple_expr:b {: RESULT = "(WHILE " + c + " " + b + ")"; :}
+            |   OUTPUT simple_expr:e          {: RESULT = "(OUTPUT " + e + ")"; :}
+            |   simple_expr:e1 PLUS simple_expr:e2  {: RESULT = "(+ " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e1 MINUS simple_expr:e2 {: RESULT = "(- " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e1 TIMES simple_expr:e2 {: RESULT = "(* " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e1 DIV simple_expr:e2   {: RESULT = "(/ " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e1 MOD simple_expr:e2   {: RESULT = "(MOD " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e1 LT simple_expr:e2    {: RESULT = "(< " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e1 LE simple_expr:e2    {: RESULT = "(<= " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e1 EQ simple_expr:e2    {: RESULT = "(= " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e1 AND simple_expr:e2   {: RESULT = "(AND " + e1 + " " + e2 + ")"; :}
+            |   simple_expr:e1 OR simple_expr:e2    {: RESULT = "(OR " + e1 + " " + e2 + ")"; :}
+            |   NOT simple_expr:e             {: RESULT = "(NOT " + e + ")"; :}
+            |   MINUS simple_expr:e           {: RESULT = "(- " + e + ")"; :} %prec UMINUS
+            |   INPUT                         {: RESULT = "INPUT"; :}
+            |   NIL                           {: RESULT = "NIL"; :}
+            |   LPAREN expr:e RPAREN          {: RESULT = e; :}
+            |   NUMBER:n                      {: RESULT = n.toString(); :}
+            |   ID:id                         {: RESULT = id; :}
+            |   simple_expr:e DOT             {: RESULT = e; :}
+            ;
