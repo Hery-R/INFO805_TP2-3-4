@@ -1,40 +1,68 @@
-# TP1 Compilation : Evaluateur d'expressions arithmétiques infixées
-On utilise JFlex pour l'analyseur lexical et CUP pour l'analyseur syntaxique.
+# TP Compilation : Génération d'arbres abstraits
+**Auteurs :**
+- RASOAMIARAMANANA Hery ny aina
+- ROUSSEAU Maxime
 
-**Sous Dossier [Exercice1](Exercice1) :**  
-Correction de l'exercice 1, évaluateur d'expressions arithmétiques infixées sur les nombres entiers.
+## Objectif
+L'objectif du TP est d'utiliser les outils JFlex et CUP pour générer des arbres abstraits correspondant à un sous ensemble du langage λ-ada.
 
-Différentes versions pour l'exercice 1 :  
-- v1 : 4 opérateurs uniquement (+, -, *, /) - pas de gestion des erreurs : 
-[branche Exercice1_v1](../Exercice1_v1/Exercice1)
-- v2 : ajout des opérateurs pour le modulo et le moins unaire - gestion des erreurs (division par zéro) : 
-[branche Exercice1_v2](../Exercice1_v2/Exercice1)
-- v3 : ajout de la gestion des numéros de ligne et de colonne : 
-[branche Exercice1_v3](../Exercice1_v3/Exercice1)
-    
-**Sous Dossier [Exercice2](Exercice2) :**  
-Correction de l'exercice 2, ajout de l'utilisation de variables et gestion des commentaires.
+## Exercice 1 : Expressions Arithmétiques
+Utiliser JFlex et CUP pour générer l'arbre abstrait correspondant à l'analyse d'expressions arithmétiques sur les nombres entiers.
 
-Différentes versions  pour l'exercice 2 :  
-- v1 : 4 opérateurs uniquement (+, -, *, /) - pas de gestion des erreurs : 
-[branche Exercice2_v1](../Exercice2_v1/Exercice2)
-- v2 : ajout des opérateurs pour le modulo et le moins unaire - gestion des erreurs (variable indéfinie/division par zéro): 
-[branche Exercice2_v2](../Exercice2_v2/Exercice2)
-- v3 : ajout de la gestion des numéros de ligne et de colonne : 
-[branche Exercice2_v3](../Exercice2_v3/Exercice2)
+### Exemple de fichier source
+```ada
+12 + 5;             /* ceci est un commentaire */
+10 / 2 - 3;  99;    /* le point-virgule sépare les expressions à évaluer */
+/* l'évaluation donne toujours un nombre entier */
+((30 * 1) + 4) mod 2; /* opérateurs binaires */
+3 * -4;             /* attention à l'opérateur unaire */
 
-Normalement l'exécution de la tâche build (via gradle) devrait générer un jar pour chaque exercice 
-(Exercice1/build/lib/Exercice1.jar et Exercice2/build/lib/Exercice2.jar).  
-On peut les utiliser pour lancer l'analyseur : 
-
-```
-java -jar Exercice2/build/libs/Exercice2.jar tpEvaluateurSource.txt
+let prixHt = 200;   /* une variable prend valeur lors de sa déclaration */
+let prixTtc =  prixHt * 119 / 100;
+prixTtc + 100.
 ```
 
-Ce qui donne alors le résultat suivant :  
+### Exemple de génération d'arbre
+L'expression :
+```ada
+let prixTtc =  prixHt * 119 / 100;
+prixTtc + 100
+```
+pourra donner, par exemple, l'arbre suivant sous forme d'expression préfixée parenthésée :
+```
+(; (LET prixTtc (/ (* prixHt 119) 100)) (+ prixTtc 100))
+```
 
-Fichier source :  
-![Copie écran fichier source](exempleSource.jpg)  
+## Exercice 2 : Extension de la Grammaire
+Compléter la grammaire précédente en y ajoutant les opérateurs booléens, ceux de comparaison, la boucle et la conditionnelle, pour obtenir un sous-ensemble plus complet du langage λ-ada.
 
-Résultat :  
-![Copie écran résultat exécution](exempleEvaluation.jpg)  
+### Grammaire abstraite
+```
+expression → expression ';' expression  
+expression → LET IDENT '=' expression
+expression → IF expression THEN expression ELSE expression
+expression → WHILE expression DO expression
+expression → '-' expression
+expression → expression '+' expression
+expression → expression '-' expression
+expression → expression '*' expression
+expression → expression '/' expression
+expression → expression MOD expression
+expression → expression '<' expression
+expression → expression '<=' expression
+expression → expression '=' expression
+expression → expression AND expression
+expression → expression OR expression
+expression → NOT expression 
+expression → OUTPUT expression 
+expression → INPUT | NIL | IDENT | ENTIER
+```
+
+### Exemple de programme : Calcul de PGCD
+```ada
+let a = input;
+let b = input;
+while (0 < b)
+do (let aux=(a mod b); let a=b; let b=aux );
+output a .
+```
