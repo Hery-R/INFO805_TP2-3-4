@@ -14,14 +14,11 @@ action code {:
         if (list.size() == 1) {
             System.out.println(list.get(0));
         } else {
-            for (int i = 0; i < list.size() - 1; i++) {
-                System.out.print("(; " + list.get(i) + " ");
+            Arbre seqArbre = new Arbre(";");
+            for (Object expr : list) {
+                seqArbre.ajouterEnfant(expr);
             }
-            System.out.print(list.get(list.size() - 1));
-            for (int i = 0; i < list.size() - 1; i++) {
-                System.out.print(")");
-            }
-            System.out.println();
+            System.out.println(seqArbre);
         }
     }
 :};
@@ -74,28 +71,28 @@ precedence left DOT;
 program     ::= expr:e                        {: List<Object> l = new ArrayList<>(); l.add(e); printExprList(l); RESULT = l; :}
             ;
 
-expr        ::= simple_expr:e1 SEMI expr:e2   {: RESULT = "(; " + e1 + " " + e2 + ")"; :}
+expr        ::= simple_expr:e1 SEMI expr:e2   {: Arbre a = new Arbre(";"); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
             |   simple_expr:e                 {: RESULT = e; :}
             ;
 
-simple_expr ::= LET ID:id ASSIGN simple_expr:e {: RESULT = "(LET " + id + " " + e + ")"; :}
-            |   IF simple_expr:c THEN simple_expr:t ELSE simple_expr:e  {: RESULT = "(IF " + c + " " + t + " " + e + ")"; :}
-            |   WHILE simple_expr:c DO simple_expr:b {: RESULT = "(WHILE " + c + " " + b + ")"; :}
-            |   OUTPUT simple_expr:e          {: RESULT = "(OUTPUT " + e + ")"; :}
-            |   simple_expr:e1 PLUS simple_expr:e2  {: RESULT = "(+ " + e1 + " " + e2 + ")"; :}
-            |   simple_expr:e1 MINUS simple_expr:e2 {: RESULT = "(- " + e1 + " " + e2 + ")"; :}
-            |   simple_expr:e1 TIMES simple_expr:e2 {: RESULT = "(* " + e1 + " " + e2 + ")"; :}
-            |   simple_expr:e1 DIV simple_expr:e2   {: RESULT = "(/ " + e1 + " " + e2 + ")"; :}
-            |   simple_expr:e1 MOD simple_expr:e2   {: RESULT = "(MOD " + e1 + " " + e2 + ")"; :}
-            |   simple_expr:e1 LT simple_expr:e2    {: RESULT = "(< " + e1 + " " + e2 + ")"; :}
-            |   simple_expr:e1 LE simple_expr:e2    {: RESULT = "(<= " + e1 + " " + e2 + ")"; :}
-            |   simple_expr:e1 EQ simple_expr:e2    {: RESULT = "(= " + e1 + " " + e2 + ")"; :}
-            |   simple_expr:e1 AND simple_expr:e2   {: RESULT = "(AND " + e1 + " " + e2 + ")"; :}
-            |   simple_expr:e1 OR simple_expr:e2    {: RESULT = "(OR " + e1 + " " + e2 + ")"; :}
-            |   NOT simple_expr:e             {: RESULT = "(NOT " + e + ")"; :}
-            |   MINUS simple_expr:e           {: RESULT = "(- " + e + ")"; :} %prec UMINUS
-            |   INPUT                         {: RESULT = "INPUT"; :}
-            |   NIL                           {: RESULT = "NIL"; :}
+simple_expr ::= LET ID:id ASSIGN simple_expr:e {: Arbre a = new Arbre("LET"); a.ajouterEnfant(id); a.ajouterEnfant(e); RESULT = a; :}
+            |   IF simple_expr:c THEN simple_expr:t ELSE simple_expr:e  {: Arbre a = new Arbre("IF"); a.ajouterEnfant(c); a.ajouterEnfant(t); a.ajouterEnfant(e); RESULT = a; :}
+            |   WHILE simple_expr:c DO simple_expr:b {: Arbre a = new Arbre("WHILE"); a.ajouterEnfant(c); a.ajouterEnfant(b); RESULT = a; :}
+            |   OUTPUT simple_expr:e          {: Arbre a = new Arbre("OUTPUT"); a.ajouterEnfant(e); RESULT = a; :}
+            |   simple_expr:e1 PLUS simple_expr:e2  {: Arbre a = new Arbre("+"); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   simple_expr:e1 MINUS simple_expr:e2 {: Arbre a = new Arbre("-"); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   simple_expr:e1 TIMES simple_expr:e2 {: Arbre a = new Arbre("*"); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   simple_expr:e1 DIV simple_expr:e2   {: Arbre a = new Arbre("/"); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   simple_expr:e1 MOD simple_expr:e2   {: Arbre a = new Arbre("MOD"); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   simple_expr:e1 LT simple_expr:e2    {: Arbre a = new Arbre("<"); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   simple_expr:e1 LE simple_expr:e2    {: Arbre a = new Arbre("<="); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   simple_expr:e1 EQ simple_expr:e2    {: Arbre a = new Arbre("="); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   simple_expr:e1 AND simple_expr:e2   {: Arbre a = new Arbre("AND"); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   simple_expr:e1 OR simple_expr:e2    {: Arbre a = new Arbre("OR"); a.ajouterEnfant(e1); a.ajouterEnfant(e2); RESULT = a; :}
+            |   NOT simple_expr:e             {: Arbre a = new Arbre("NOT"); a.ajouterEnfant(e); RESULT = a; :}
+            |   MINUS simple_expr:e           {: Arbre a = new Arbre("-"); a.ajouterEnfant(e); RESULT = a; :} %prec UMINUS
+            |   INPUT                         {: RESULT = new Arbre("INPUT"); :}
+            |   NIL                           {: RESULT = new Arbre("NIL"); :}
             |   LPAREN expr:e RPAREN          {: RESULT = e; :}
             |   NUMBER:n                      {: RESULT = n.toString(); :}
             |   ID:id                         {: RESULT = id; :}

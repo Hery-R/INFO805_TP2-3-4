@@ -3,6 +3,8 @@
 - RASOAMIARAMANANA Hery ny aina
 - ROUSSEAU Maxime
 
+(On a fait tout le TP, c'est dans le dossier Exercice1)
+
 ## Objectif
 L'objectif du TP est d'utiliser les outils JFlex et CUP pour générer des arbres abstraits correspondant à un sous ensemble du langage λ-ada.
 
