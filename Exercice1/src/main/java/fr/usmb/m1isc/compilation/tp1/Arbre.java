@@ -27,19 +27,27 @@ public class Arbre {
         return sb.toString();
     }
 
-    public String printData() {
+    public String printData(boolean isArbre) {
         StringBuilder sb = new StringBuilder();
-        sb.append("DATA SEGMENT\n");
+        if (!isArbre) {
+            sb.append("DATA SEGMENT\n");
+        }
         for (Object enfant : enfants) {
             if (enfant instanceof Arbre arbre) {
                 if (arbre.type.equals("LET")) {
                     sb.append("\t").append(arbre.enfants.get(0)).append(" DD\n");
+                } else {
+                    sb.append(arbre.printData(true));
                 }
             }
         }
-        sb.append("DATA ENDS\n");
+        if (!isArbre) {
+            sb.append("DATA ENDS\n");
+        }
         return sb.toString();
     }
+
+    
 
     private void generateCodeForNode(Arbre arbre, StringBuilder sb) {
         switch (arbre.type) {
@@ -66,6 +74,12 @@ public class Arbre {
                 sb.append("	div ebx, eax\n");
                 sb.append("	mov eax, ebx");
             }
+
+            case ";" -> {
+                generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
+                generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
+            }
+
             default -> {
                 sb.append(arbre.type);
             }
