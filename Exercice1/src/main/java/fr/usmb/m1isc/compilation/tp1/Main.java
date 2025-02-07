@@ -19,6 +19,7 @@ public class Main {
         List<Arbre> arbres = (List<Arbre>) p.parse().value;
 
         for (Arbre arbre : arbres) {
+			System.out.println(arbre.printData());
             System.out.println(arbre.generateCode());
         }
     }

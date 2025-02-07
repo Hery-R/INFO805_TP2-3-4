@@ -27,9 +27,8 @@ public class Arbre {
         return sb.toString();
     }
 
-    public String generateCode() {
+    public String printData() {
         StringBuilder sb = new StringBuilder();
-
         sb.append("DATA SEGMENT\n");
         for (Object enfant : enfants) {
             if (enfant instanceof Arbre arbre) {
@@ -39,33 +38,47 @@ public class Arbre {
             }
         }
         sb.append("DATA ENDS\n");
+        return sb.toString();
+    }
 
+    private void generateCodeForNode(Arbre arbre, StringBuilder sb) {
+        switch (arbre.type) {
+            case "LET" -> {
+                sb.append("	mov eax, ");
+                generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
+                sb.append("\n	mov ").append(arbre.enfants.get(0)).append(", eax\n");
+
+            }
+            case "*" -> {
+                generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
+                sb.append("\n	push eax\n");
+                sb.append("        mov eax, ");
+                generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
+                sb.append("\n	pop ebx\n");
+                sb.append("	mul eax, ebx");
+            }
+            case "/" -> {
+                generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
+                sb.append("\n	push eax\n");
+                sb.append("        mov eax, ");
+                generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
+                sb.append("\n	pop ebx\n");
+                sb.append("	div ebx, eax\n");
+                sb.append("	mov eax, ebx");
+            }
+            default -> {
+                sb.append(arbre.type);
+            }
+        }
+    }
+
+    public String generateCode() {
+        StringBuilder sb = new StringBuilder();
         sb.append("CODE SEGMENT\n");
         for (Object enfant : enfants) {
             if (enfant instanceof Arbre arbre) {
-                switch (arbre.type) {
-                    case "LET" -> {
-                        sb.append("	mov eax, ").append(arbre.enfants.get(1)).append("\n");
-                        sb.append("	mov ").append(arbre.enfants.get(0)).append(", eax\n");
-                    }
-                    case "*" -> {
-                        sb.append("	mov eax, ").append(arbre.enfants.get(0)).append("\n");
-                        sb.append("	push eax\n");
-                        sb.append("	mov eax, ").append(arbre.enfants.get(1)).append("\n");
-                        sb.append("	pop ebx\n");
-                        sb.append("	mul eax, ebx\n");
-                    }
-                    case "/" -> {
-                        sb.append("	mov eax, ").append(arbre.enfants.get(0)).append("\n");
-                        sb.append("	push eax\n");
-                        sb.append("	mov eax, ").append(arbre.enfants.get(1)).append("\n");
-                        sb.append("	pop ebx\n");
-                        sb.append("	div ebx, eax\n");
-                    }
-                    default -> {
-                    }
-                }
-                            }
+                generateCodeForNode(arbre, sb);
+            }
         }
         sb.append("CODE ENDS\n");
         return sb.toString();
