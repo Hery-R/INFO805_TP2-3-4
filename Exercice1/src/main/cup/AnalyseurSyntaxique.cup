@@ -51,7 +51,7 @@ terminal String ID;
 terminal Integer NUMBER;
 
 /* non terminaux */
-non terminal Object expr, simple_expr;
+non terminal Arbre expr, simple_expr;
 non terminal List<Object> program;
 
 /* Précédences */
@@ -94,7 +94,7 @@ simple_expr ::= LET ID:id ASSIGN simple_expr:e {: Arbre a = new Arbre("LET"); a.
             |   INPUT                         {: RESULT = new Arbre("INPUT"); :}
             |   NIL                           {: RESULT = new Arbre("NIL"); :}
             |   LPAREN expr:e RPAREN          {: RESULT = e; :}
-            |   NUMBER:n                      {: RESULT = n.toString(); :}
-            |   ID:id                         {: RESULT = id; :}
+            |   NUMBER:n                      {: RESULT = new Arbre(n.toString()); :}
+            |   ID:id                         {: RESULT = new Arbre(id); :}
             |   simple_expr:e DOT             {: RESULT = e; :}
             ;
