@@ -29,29 +29,27 @@ public class Arbre {
         return sb.toString();
     }
 
-    public String printData(boolean isArbre) {
-        StringBuilder sb = new StringBuilder();
-        if (!isArbre) {
-            sb.append("DATA SEGMENT\n");
-        }
-        
-        // Set pour garder trace des variables déjà déclarées
-        Set<String> declaredVars = new HashSet<>();
-        
+    private void collectVariables(Set<String> vars) {
         for (Object enfant : enfants) {
             if (enfant instanceof Arbre arbre) {
                 if (arbre.type.equals("LET")) {
-                    String varName = arbre.enfants.get(0).toString();
-                    if (!declaredVars.contains(varName)) {
-                        sb.append("\t").append(varName).append(" DD\n");
-                        declaredVars.add(varName);
-                    }
-                } else {
-                    sb.append(arbre.printData(true));
+                    vars.add(arbre.enfants.get(0).toString());
                 }
+                arbre.collectVariables(vars);
             }
         }
+    }
+
+    public String printData(boolean isArbre) {
+        StringBuilder sb = new StringBuilder();
         if (!isArbre) {
+            Set<String> variables = new HashSet<>();
+            collectVariables(variables);
+            
+            sb.append("DATA SEGMENT\n");
+            for (String var : variables) {
+                sb.append("\t").append(var).append(" DD\n");
+            }
             sb.append("DATA ENDS\n");
         }
         return sb.toString();
@@ -65,58 +63,57 @@ public class Arbre {
         switch (arbre.type) {
             case "LET" -> {
                 generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
-                sb.append("\n\tmov ").append(arbre.enfants.get(0)).append(", eax\n");
+                sb.append("\tmov ").append(arbre.enfants.get(0)).append(", eax\n");
             }
             case "INPUT" -> {
-                sb.append("\tin eax");
+                sb.append("\tin eax\n");
             }
             case "OUTPUT" -> {
                 generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
-                sb.append("\n\tout eax");
+                sb.append("\tout eax\n");
             }
             case "WHILE" -> {
                 int currentLabel = ++labelCounter;
-                sb.append("\ndebut_while_").append(currentLabel).append(":\n");
+                sb.append("debut_while_").append(currentLabel).append(":\n");
                 generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
-                sb.append("\n\tjz sortie_while_").append(currentLabel).append("\n");
+                sb.append("\tjz sortie_while_").append(currentLabel).append("\n");
                 generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
-                sb.append("\n\tjmp debut_while_").append(currentLabel).append("\n");
-                sb.append("sortie_while_").append(currentLabel).append(":");
+                sb.append("\tjmp debut_while_").append(currentLabel).append("\n");
+                sb.append("sortie_while_").append(currentLabel).append(":\n");
             }
             case "<" -> {
                 generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
-                sb.append("\n\tpush eax");
+                sb.append("\tpush eax\n");
                 generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
-                sb.append("\n\tpop ebx");
-                sb.append("\n\tsub eax, ebx");
+                sb.append("\tpop ebx\n");
+                sb.append("\tsub eax, ebx\n");
                 int currentLabel = labelCounter + 1;
-                sb.append("\n\tjle faux_gt_").append(currentLabel);
-                sb.append("\n\tmov eax,1");
-                sb.append("\n\tjmp sortie_gt_").append(currentLabel);
-                sb.append("\nfaux_gt_").append(currentLabel).append(":");
-                sb.append("\n\tmov eax,0");
-                sb.append("\nsortie_gt_").append(currentLabel).append(":");
+                sb.append("\tjle faux_gt_").append(currentLabel).append("\n");
+                sb.append("\tmov eax,1\n");
+                sb.append("\tjmp sortie_gt_").append(currentLabel).append("\n");
+                sb.append("faux_gt_").append(currentLabel).append(":\n");
+                sb.append("\tmov eax,0\n");
+                sb.append("sortie_gt_").append(currentLabel).append(":\n");
             }
             case "MOD" -> {
                 generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
-                sb.append("\n\tpush eax");
+                sb.append("\tpush eax\n");
                 generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
-                sb.append("\n\tpop ebx");
-                sb.append("\n\tmov ecx,eax");
-                sb.append("\n\tdiv ecx,ebx");
-                sb.append("\n\tmul ecx,ebx");
-                sb.append("\n\tsub eax,ecx");
+                sb.append("\tpop ebx\n");
+                sb.append("\tmov ecx,eax\n");
+                sb.append("\tdiv ecx,ebx\n");
+                sb.append("\tmul ecx,ebx\n");
+                sb.append("\tsub eax,ecx\n");
             }
             case ";" -> {
                 generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
-                sb.append("\n");
                 generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
             }
             default -> {
                 if (arbre.type.matches("-?\\d+")) {
-                    sb.append("\n\tmov eax, ").append(arbre.type);
+                    sb.append("\tmov eax, ").append(arbre.type).append("\n");
                 } else {
-                    sb.append("\n\tmov eax, ").append(arbre.type);
+                    sb.append("\tmov eax, ").append(arbre.type).append("\n");
                 }
             }
         }
