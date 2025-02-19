@@ -1,8 +1,8 @@
 package fr.usmb.m1isc.compilation.tp1;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Arbre {
@@ -50,7 +50,7 @@ public class Arbre {
             for (String var : variables) {
                 sb.append("\t").append(var).append(" DD\n");
             }
-            sb.append("DATA ENDS\n");
+            sb.append("DATA ENDS");
         }
         return sb.toString();
     }
@@ -89,21 +89,51 @@ public class Arbre {
                 sb.append("\tsub eax, ebx\n");
                 int currentLabel = labelCounter + 1;
                 sb.append("\tjle faux_gt_").append(currentLabel).append("\n");
-                sb.append("\tmov eax,1\n");
+                sb.append("\tmov eax, 1\n");
                 sb.append("\tjmp sortie_gt_").append(currentLabel).append("\n");
                 sb.append("faux_gt_").append(currentLabel).append(":\n");
-                sb.append("\tmov eax,0\n");
+                sb.append("\tmov eax, 0\n");
                 sb.append("sortie_gt_").append(currentLabel).append(":\n");
+            }
+            case "+" -> {
+                generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
+                sb.append("\tpush eax\n");
+                generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
+                sb.append("\tpop ebx\n");
+                sb.append("\tadd eax, ebx\n");
+            }
+            case "-" -> {
+                generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
+                sb.append("\tpush eax\n");
+                generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
+                sb.append("\tpop ebx\n");
+                sb.append("\tsub eax, ebx\n");
+            }
+            case "*" -> {
+                generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
+                sb.append("\tpush eax\n");
+                sb.append("\tmov eax,\n");
+                generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
+                sb.append("\tpop ebx\n");
+                sb.append("\tmul eax, ebx\n");
+            }
+            case "/" -> {
+                generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
+                sb.append("\tpush eax\n");
+                generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
+                sb.append("\tpop ebx\n");
+                sb.append("\tdiv ebx, eax\n");
+                sb.append("\tmov eax, ebx\n");
             }
             case "MOD" -> {
                 generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
                 sb.append("\tpush eax\n");
                 generateCodeForNode((Arbre) arbre.enfants.get(1), sb);
                 sb.append("\tpop ebx\n");
-                sb.append("\tmov ecx,eax\n");
-                sb.append("\tdiv ecx,ebx\n");
-                sb.append("\tmul ecx,ebx\n");
-                sb.append("\tsub eax,ecx\n");
+                sb.append("\tmov ecx, eax\n");
+                sb.append("\tdiv ecx, ebx\n");
+                sb.append("\tmul ecx, ebx\n");
+                sb.append("\tsub eax, ecx\n");
             }
             case ";" -> {
                 generateCodeForNode((Arbre) arbre.enfants.get(0), sb);
@@ -121,14 +151,14 @@ public class Arbre {
 
     public String generateCode() {
         StringBuilder sb = new StringBuilder();
-        labelCounter = 0;  // Réinitialiser le compteur au début
+        labelCounter = 0;
         sb.append("CODE SEGMENT\n");
         for (Object enfant : enfants) {
             if (enfant instanceof Arbre arbre) {
                 generateCodeForNode(arbre, sb);
             }
         }
-        sb.append("\nCODE ENDS\n");
+        sb.append("CODE ENDS\n");
         return sb.toString();
     }
 }

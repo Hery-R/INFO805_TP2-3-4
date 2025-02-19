@@ -1,0 +1,6 @@
+let n = input;
+let somme = 0;
+while (0 < n)
+do (let somme = somme + n; let n = n - 1 );
+output somme
+.

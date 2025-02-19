@@ -1,0 +1,7 @@
+let n = input;
+let d = 2;
+let est_premier = 1;
+while (d * d <= n)
+do (if (n mod d = 0) then let est_premier = 0; let d = d + 1 );
+output est_premier
+.
