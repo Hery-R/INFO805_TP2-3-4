@@ -29,6 +29,28 @@ public class Arbre {
         return sb.toString();
     }
 
+    public void affichageStructure(String prefix, boolean isLeft) {
+        String value = type;
+        Arbre fg = null;
+        Arbre fd = null;
+        if (!enfants.isEmpty()) {
+            if (enfants.get(0) instanceof Arbre arbre) {
+                fg = arbre;
+            }
+            if (enfants.size() > 1 && enfants.get(1) instanceof Arbre) {
+                fd = (Arbre) enfants.get(1);
+            }
+        }
+        System.out.println(prefix + (isLeft ? "|-- " : "|-- ") + value);
+
+        if (fg != null) {
+            fg.affichageStructure(prefix + (isLeft ? "|   " : "    "), true);
+        }
+        if (fd != null) {
+            fd.affichageStructure(prefix + (isLeft ? "|   " : "    "), false);
+        }
+    }
+
     private void collectVariables(Set<String> vars) {
         for (Object enfant : enfants) {
             if (enfant instanceof Arbre arbre) {
