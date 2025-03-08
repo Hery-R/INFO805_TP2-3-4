@@ -5,8 +5,6 @@
 
 (On a fait tout le TP, c'est dans le dossier Exercice1)
 
-# Exercice 1
-
 ## Évaluateur d'expressions arithmétiques infixées sur les nombres entiers
 
 ### Description
@@ -26,13 +24,7 @@ Ce projet implémente un évaluateur d'expressions arithmétiques infixées sur 
 ### Compilation et exécution
 1. Cloner le dépôt ou télécharger les fichiers du projet.
 2. Ouvrir un terminal et naviguer vers le répertoire du projet.
-3. Compiler le projet en utilisant Gradle :
-   ```sh
+3. ```sh
    ./gradlew build
-
-
-### Exécuter le programme avec l'un des fichiers de test :
-```sh
-  java -cp build/classes/java/main fr.usmb.m1isc.compilation.tp1.Main Exercice1/test.txt
-
-
+   cd .\Exercice1\
+   java -jar build/libs/Exercice1.jar test.txt
