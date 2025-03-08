@@ -5,66 +5,34 @@
 
 (On a fait tout le TP, c'est dans le dossier Exercice1)
 
-## Objectif
-L'objectif du TP est d'utiliser les outils JFlex et CUP pour générer des arbres abstraits correspondant à un sous ensemble du langage λ-ada.
+# Exercice 1
 
-## Exercice 1 : Expressions Arithmétiques
-Utiliser JFlex et CUP pour générer l'arbre abstrait correspondant à l'analyse d'expressions arithmétiques sur les nombres entiers.
+## Évaluateur d'expressions arithmétiques infixées sur les nombres entiers
 
-### Exemple de fichier source
-```ada
-12 + 5;             /* ceci est un commentaire */
-10 / 2 - 3;  99;    /* le point-virgule sépare les expressions à évaluer */
-/* l'évaluation donne toujours un nombre entier */
-((30 * 1) + 4) mod 2; /* opérateurs binaires */
-3 * -4;             /* attention à l'opérateur unaire */
+### Description
+Ce projet implémente un évaluateur d'expressions arithmétiques infixées sur les nombres entiers en utilisant JFlex pour l'analyse lexicale et CUP pour l'analyse syntaxique. Le projet permet de lire des expressions arithmétiques à partir de fichiers d'entrée, de les analyser, de les évaluer et de générer du code correspondant.
 
-let prixHt = 200;   /* une variable prend valeur lors de sa déclaration */
-let prixTtc =  prixHt * 119 / 100;
-prixTtc + 100.
-```
+### Structure du projet
+- `Exercice1/src/main/java/fr/usmb/m1isc/compilation/tp1/Main.java` : Point d'entrée principal du programme.
+- `Exercice1/src/main/java/fr/usmb/m1isc/compilation/tp1/Arbre.java` : Classe représentant un arbre syntaxique abstrait.
+- `Exercice1/src/main/jflex/AnalyseurLexical.jflex` : Analyseur lexical généré par JFlex.
+- `Exercice1/src/main/cup/AnalyseurSyntaxique.cup` : Analyseur syntaxique généré par CUP.
+- `test.txt`, `test1.txt`, `test2.txt` : Fichiers de test contenant des expressions arithmétiques à évaluer.
 
-### Exemple de génération d'arbre
-L'expression :
-```ada
-let prixTtc =  prixHt * 119 / 100;
-prixTtc + 100
-```
-pourra donner, par exemple, l'arbre suivant sous forme d'expression préfixée parenthésée :
-```
-(; (LET prixTtc (/ (* prixHt 119) 100)) (+ prixTtc 100))
-```
+### Prérequis
+- Java Development Kit (JDK)
+- Gradle
 
-## Exercice 2 : Extension de la Grammaire
-Compléter la grammaire précédente en y ajoutant les opérateurs booléens, ceux de comparaison, la boucle et la conditionnelle, pour obtenir un sous-ensemble plus complet du langage λ-ada.
+### Compilation et exécution
+1. Cloner le dépôt ou télécharger les fichiers du projet.
+2. Ouvrir un terminal et naviguer vers le répertoire du projet.
+3. Compiler le projet en utilisant Gradle :
+   ```sh
+   ./gradlew build
 
-### Grammaire abstraite
-```
-expression → expression ';' expression  
-expression → LET IDENT '=' expression
-expression → IF expression THEN expression ELSE expression
-expression → WHILE expression DO expression
-expression → '-' expression
-expression → expression '+' expression
-expression → expression '-' expression
-expression → expression '*' expression
-expression → expression '/' expression
-expression → expression MOD expression
-expression → expression '<' expression
-expression → expression '<=' expression
-expression → expression '=' expression
-expression → expression AND expression
-expression → expression OR expression
-expression → NOT expression 
-expression → OUTPUT expression 
-expression → INPUT | NIL | IDENT | ENTIER
-```
 
-### Exemple de programme : Calcul de PGCD
-```ada
-let a = input;
-let b = input;
-while (0 < b)
-do (let aux=(a mod b); let a=b; let b=aux );
-output a .
-```
+### Exécuter le programme avec l'un des fichiers de test :
+```sh
+  java -cp build/classes/java/main fr.usmb.m1isc.compilation.tp1.Main Exercice1/test.txt
+
+
